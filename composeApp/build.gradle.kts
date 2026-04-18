@@ -204,7 +204,7 @@ compose.desktop {
             }
             targetFormats(*listTarget.toTypedArray())
             modules("jdk.unsupported")
-            packageName = "SimpMusic"
+            packageName = "Sonara"
             macOS {
                 val formatedDate =
                     Instant.now().let {
@@ -347,7 +347,7 @@ afterEvaluate {
     }
 
     fun packAppImage(isRelease: Boolean) {
-        val appName = "SimpMusic"
+        val appName = "Sonara"
         val appDirSrc = project.file("appimage")
         val packageOutput =
             if (isRelease) {
@@ -411,9 +411,9 @@ afterEvaluate {
             """[Desktop Entry]
             |Type=Application
             |Version=1.0
-            |Name=SimpMusic
-            |Comment=SimpMusic v$versionName - FOSS YouTube Music Client
-            |Exec=bin/SimpMusic %u
+            |Name=Sonara
+            |Comment=Sonara v$versionName - FOSS YouTube Music Client
+            |Exec=bin/Sonara %u
             |Icon=simpmusic
             |Terminal=false
             |Categories=Audio;AudioVideo;
@@ -443,7 +443,7 @@ afterEvaluate {
             |DESKTOP_DIR="${'$'}HOME/.local/share/applications"
             |mkdir -p "${'$'}DESKTOP_DIR"
             |APPIMAGE_PATH="${'$'}{APPIMAGE:-${'$'}SELF}"
-            |sed "s|Exec=bin/SimpMusic|Exec=${'$'}APPIMAGE_PATH|" "${'$'}HERE/simpmusic.desktop" > "${'$'}DESKTOP_DIR/com-maxrave-simpmusic-MainKt.desktop"
+            |sed "s|Exec=bin/Sonara|Exec=${'$'}APPIMAGE_PATH|" "${'$'}HERE/simpmusic.desktop" > "${'$'}DESKTOP_DIR/com-maxrave-simpmusic-MainKt.desktop"
             |update-desktop-database "${'$'}DESKTOP_DIR" 2>/dev/null || true
             |
             |cd "${'$'}HERE"
