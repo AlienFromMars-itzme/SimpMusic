@@ -16,8 +16,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.Text
@@ -28,7 +31,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
@@ -59,116 +64,172 @@ fun CreditScreen(
         modifier =
             Modifier
                 .fillMaxSize()
+                .drawBehind {
+                    drawRect(color = Color(0xFF111828))
+                }
                 .padding(paddingValues)
                 .padding(top = 64.dp)
                 .verticalScroll(rememberScrollState())
-                .hazeSource(state = hazeState),
+                .hazeSource(state = hazeState)
+                .blur(0.4.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Spacer(modifier = Modifier.height(30.dp))
 
-        // App icon
-        Image(
-            painter = painterResource(Res.drawable.app_icon),
-            contentDescription = "App Icon",
-            modifier =
-                Modifier
-                    .size(150.dp)
-                    .clip(CircleShape),
-        )
-
-        Spacer(modifier = Modifier.height(30.dp))
-
-        // App name
-        Text(
-            text = stringResource(Res.string.app_name),
-            style = typo().titleLarge,
-            fontSize = 22.sp,
-        )
-
-        // Version
-        Text(
-            text = stringResource(Res.string.version_format, VersionManager.getVersionName()),
-            style = typo().bodySmall,
-            fontSize = 13.sp,
-        )
-
-        // Developer
-        Text(
-            text = stringResource(Res.string.maxrave_dev),
-            style = typo().bodyMedium,
-        )
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-        // App description
-        Text(
-            text = stringResource(Res.string.credit_app),
-            style = typo().bodyMedium,
+        Card(
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 25.dp),
-            textAlign = TextAlign.Start,
-        )
+                    .padding(horizontal = 20.dp)
+                    .hazeEffect(state = hazeState, style = HazeMaterials.thin()) {
+                        blurEnabled = true
+                    },
+            shape = RoundedCornerShape(28.dp),
+            colors =
+                CardDefaults.cardColors(
+                    containerColor = Color.White.copy(alpha = 0.09f),
+                ),
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.padding(horizontal = 20.dp, vertical = 24.dp),
+            ) {
+                // App icon
+                Image(
+                    painter = painterResource(Res.drawable.app_icon),
+                    contentDescription = "App Icon",
+                    modifier =
+                        Modifier
+                            .size(132.dp)
+                            .clip(CircleShape),
+                )
+
+                Spacer(modifier = Modifier.height(18.dp))
+
+                // App name
+                Text(
+                    text = stringResource(Res.string.app_name),
+                    style = typo().titleLarge,
+                    fontSize = 22.sp,
+                )
+
+                // Version
+                Text(
+                    text = stringResource(Res.string.version_format, VersionManager.getVersionName()),
+                    style = typo().bodySmall,
+                    fontSize = 13.sp,
+                )
+
+                // Developer
+                Text(
+                    text = stringResource(Res.string.maxrave_dev),
+                    style = typo().bodyMedium,
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        Card(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp)
+                    .hazeEffect(state = hazeState, style = HazeMaterials.regular()) {
+                        blurEnabled = true
+                    },
+            shape = RoundedCornerShape(24.dp),
+            colors =
+                CardDefaults.cardColors(
+                    containerColor = Color.White.copy(alpha = 0.08f),
+                ),
+        ) {
+            // App description
+            Text(
+                text = stringResource(Res.string.credit_app),
+                style = typo().bodyMedium,
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp, vertical = 18.dp),
+                textAlign = TextAlign.Start,
+            )
+        }
 
         Spacer(modifier = Modifier.height(10.dp))
 
         CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides Dp.Unspecified) {
-            // GitHub button
-            TextButton(
-                onClick = {
-                    openUrl("https://simpmusic.org")
-                },
+            Card(
                 modifier =
                     Modifier
-                        .align(Alignment.Start)
-                        .padding(horizontal = 25.dp)
-                        .defaultMinSize(minHeight = 1.dp, minWidth = 1.dp),
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp)
+                        .hazeEffect(state = hazeState, style = HazeMaterials.regular()) {
+                            blurEnabled = true
+                        },
+                shape = RoundedCornerShape(24.dp),
+                colors =
+                    CardDefaults.cardColors(
+                        containerColor = Color.White.copy(alpha = 0.08f),
+                    ),
             ) {
-                Text(text = stringResource(Res.string.website))
-            }
+                Column(modifier = Modifier.padding(vertical = 10.dp)) {
+                    // GitHub button
+                    TextButton(
+                        onClick = {
+                            openUrl("https://simpmusic.org")
+                        },
+                        modifier =
+                            Modifier
+                                .align(Alignment.Start)
+                                .padding(horizontal = 16.dp)
+                                .defaultMinSize(minHeight = 1.dp, minWidth = 1.dp),
+                    ) {
+                        Text(text = stringResource(Res.string.website))
+                    }
 
-            // GitHub button
-            TextButton(
-                onClick = {
-                    openUrl("https://github.com/maxrave-dev/SimpMusic")
-                },
-                modifier =
-                    Modifier
-                        .align(Alignment.Start)
-                        .padding(horizontal = 25.dp)
-                        .defaultMinSize(minHeight = 1.dp, minWidth = 1.dp),
-            ) {
-                Text(text = stringResource(Res.string.github))
-            }
+                    // GitHub button
+                    TextButton(
+                        onClick = {
+                            openUrl("https://github.com/maxrave-dev/SimpMusic")
+                        },
+                        modifier =
+                            Modifier
+                                .align(Alignment.Start)
+                                .padding(horizontal = 16.dp)
+                                .defaultMinSize(minHeight = 1.dp, minWidth = 1.dp),
+                    ) {
+                        Text(text = stringResource(Res.string.github))
+                    }
 
-            // Issue tracker button
-            TextButton(
-                onClick = {
-                    openUrl("https://github.com/maxrave-dev/SimpMusic/issues")
-                },
-                modifier =
-                    Modifier
-                        .align(Alignment.Start)
-                        .padding(horizontal = 25.dp)
-                        .defaultMinSize(minHeight = 1.dp, minWidth = 1.dp),
-            ) {
-                Text(text = stringResource(Res.string.issue_tracker))
-            }
+                    // Issue tracker button
+                    TextButton(
+                        onClick = {
+                            openUrl("https://github.com/maxrave-dev/SimpMusic/issues")
+                        },
+                        modifier =
+                            Modifier
+                                .align(Alignment.Start)
+                                .padding(horizontal = 16.dp)
+                                .defaultMinSize(minHeight = 1.dp, minWidth = 1.dp),
+                    ) {
+                        Text(text = stringResource(Res.string.issue_tracker))
+                    }
 
-            // Buy me a coffee button
-            TextButton(
-                onClick = {
-                    openUrl("https://github.com/sponsors/maxrave-dev")
-                },
-                modifier =
-                    Modifier
-                        .align(Alignment.Start)
-                        .padding(horizontal = 25.dp)
-                        .defaultMinSize(minHeight = 1.dp, minWidth = 1.dp),
-            ) {
-                Text(text = stringResource(Res.string.buy_me_a_coffee))
+                    // Buy me a coffee button
+                    TextButton(
+                        onClick = {
+                            openUrl("https://github.com/sponsors/maxrave-dev")
+                        },
+                        modifier =
+                            Modifier
+                                .align(Alignment.Start)
+                                .padding(horizontal = 16.dp)
+                                .defaultMinSize(minHeight = 1.dp, minWidth = 1.dp),
+                    ) {
+                        Text(text = stringResource(Res.string.buy_me_a_coffee))
+                    }
+                }
             }
         }
 
