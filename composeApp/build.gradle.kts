@@ -269,7 +269,10 @@ compose.desktop {
         }
     }
 }
-
+compose.resources {
+    publicResClass = true
+    packageOfResClass = "simpmusic.composeapp.generated.resources"
+}
 buildkonfig {
     packageName = "com.maxrave.simpmusic"
     exposeObjectWithName = "BuildKonfig"
