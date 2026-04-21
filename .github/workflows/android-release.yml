@@ -32,12 +32,18 @@ jobs:
           KEY_ALIAS: ${{ secrets.ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
-          if [ -n "$BASE_64_SIGNING_KEY" ] && [ -n "$KEYSTORE_PASSWORD" ] && [ -n "$KEY_ALIAS" ] && [ -n "$KEY_PASSWORD" ]; then
-            echo "ready=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "ready=false" >> "$GITHUB_OUTPUT"
-            echo "Signing secrets are missing; skipping full release APK job."
+          set -euo pipefail
+          missing_vars=()
+          for var_name in BASE_64_SIGNING_KEY KEYSTORE_PASSWORD KEY_ALIAS KEY_PASSWORD; do
+            if [ -z "${!var_name:-}" ]; then
+              missing_vars+=("$var_name")
+            fi
+          done
+          if [ "${#missing_vars[@]}" -gt 0 ]; then
+            echo "Missing required signing secret(s): ${missing_vars[*]}"
+            exit 1
           fi
+          echo "ready=true" >> "$GITHUB_OUTPUT"
 
       - uses: actions/checkout@v6
         if: steps.signing_secrets.outputs.ready == 'true'
@@ -56,8 +62,19 @@ jobs:
         if: steps.signing_secrets.outputs.ready == 'true'
         env:
           BASE_64_SIGNING_KEY: ${{ secrets.BASE_64_SIGNING_KEY }}
-        run:
-          echo $BASE_64_SIGNING_KEY | base64 -d > simpmusic.jks
+        run: |
+          set -euo pipefail
+          key_store_path="simpmusic.jks"
+          if ! printf '%s' "$BASE_64_SIGNING_KEY" | base64 --decode > "$key_store_path"; then
+            echo "Failed to decode BASE_64_SIGNING_KEY into $key_store_path. Ensure the secret is valid base64."
+            exit 1
+          fi
+          if [ ! -s "$key_store_path" ]; then
+            echo "Decoded keystore file is missing or empty: $key_store_path"
+            exit 1
+          fi
+          key_store_size="$(wc -c < "$key_store_path" | tr -d '[:space:]')"
+          echo "Decoded signing keystore size: ${key_store_size} bytes"
 
       - name: Update build product flavor
         if: steps.signing_secrets.outputs.ready == 'true'
@@ -72,7 +89,25 @@ jobs:
           KEYSTORE_PASSWORD: ${{ secrets.KEY_STORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-        run: ./build_and_sign_apk.sh --release --full
+        run: |
+          set -euo pipefail
+          missing_vars=()
+          for var_name in KEYSTORE_PASSWORD KEY_ALIAS KEY_PASSWORD; do
+            if [ -z "${!var_name:-}" ]; then
+              missing_vars+=("$var_name")
+            fi
+          done
+          if [ "${#missing_vars[@]}" -gt 0 ]; then
+            echo "Missing required signing variable(s) before signing: ${missing_vars[*]}"
+            exit 1
+          fi
+          if [ ! -s simpmusic.jks ]; then
+            echo "Signing keystore is missing or empty before signing: simpmusic.jks"
+            exit 1
+          fi
+          key_store_size="$(wc -c < simpmusic.jks | tr -d '[:space:]')"
+          echo "Signing precheck passed. Keystore size: ${key_store_size} bytes"
+          ./build_and_sign_apk.sh --release --full
 
       - name: Upload APK
         if: steps.signing_secrets.outputs.ready == 'true'
@@ -96,12 +131,18 @@ jobs:
           KEY_ALIAS: ${{ secrets.ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
-          if [ -n "$BASE_64_SIGNING_KEY" ] && [ -n "$KEYSTORE_PASSWORD" ] && [ -n "$KEY_ALIAS" ] && [ -n "$KEY_PASSWORD" ]; then
-            echo "ready=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "ready=false" >> "$GITHUB_OUTPUT"
-            echo "Signing secrets are missing; skipping foss release APK job."
+          set -euo pipefail
+          missing_vars=()
+          for var_name in BASE_64_SIGNING_KEY KEYSTORE_PASSWORD KEY_ALIAS KEY_PASSWORD; do
+            if [ -z "${!var_name:-}" ]; then
+              missing_vars+=("$var_name")
+            fi
+          done
+          if [ "${#missing_vars[@]}" -gt 0 ]; then
+            echo "Missing required signing secret(s): ${missing_vars[*]}"
+            exit 1
           fi
+          echo "ready=true" >> "$GITHUB_OUTPUT"
 
       - uses: actions/checkout@v6
         if: steps.signing_secrets.outputs.ready == 'true'
@@ -120,8 +161,19 @@ jobs:
         if: steps.signing_secrets.outputs.ready == 'true'
         env:
           BASE_64_SIGNING_KEY: ${{ secrets.BASE_64_SIGNING_KEY }}
-        run:
-          echo $BASE_64_SIGNING_KEY | base64 -d > simpmusic.jks
+        run: |
+          set -euo pipefail
+          key_store_path="simpmusic.jks"
+          if ! printf '%s' "$BASE_64_SIGNING_KEY" | base64 --decode > "$key_store_path"; then
+            echo "Failed to decode BASE_64_SIGNING_KEY into $key_store_path. Ensure the secret is valid base64."
+            exit 1
+          fi
+          if [ ! -s "$key_store_path" ]; then
+            echo "Decoded keystore file is missing or empty: $key_store_path"
+            exit 1
+          fi
+          key_store_size="$(wc -c < "$key_store_path" | tr -d '[:space:]')"
+          echo "Decoded signing keystore size: ${key_store_size} bytes"
 
       - name: Update build product flavor
         if: steps.signing_secrets.outputs.ready == 'true'
@@ -135,7 +187,25 @@ jobs:
           KEYSTORE_PASSWORD: ${{ secrets.KEY_STORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-        run: ./build_and_sign_apk.sh --release --foss
+        run: |
+          set -euo pipefail
+          missing_vars=()
+          for var_name in KEYSTORE_PASSWORD KEY_ALIAS KEY_PASSWORD; do
+            if [ -z "${!var_name:-}" ]; then
+              missing_vars+=("$var_name")
+            fi
+          done
+          if [ "${#missing_vars[@]}" -gt 0 ]; then
+            echo "Missing required signing variable(s) before signing: ${missing_vars[*]}"
+            exit 1
+          fi
+          if [ ! -s simpmusic.jks ]; then
+            echo "Signing keystore is missing or empty before signing: simpmusic.jks"
+            exit 1
+          fi
+          key_store_size="$(wc -c < simpmusic.jks | tr -d '[:space:]')"
+          echo "Signing precheck passed. Keystore size: ${key_store_size} bytes"
+          ./build_and_sign_apk.sh --release --foss
 
       - name: Upload APK
         if: steps.signing_secrets.outputs.ready == 'true'
