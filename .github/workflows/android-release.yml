@@ -20,6 +20,7 @@ jobs:
   build-full-release:
     name: Build full release version
     runs-on: ubuntu-latest
+    if: ${{ secrets.BASE_64_SIGNING_KEY != '' && secrets.KEY_STORE_PASSWORD != '' && secrets.ALIAS != '' && secrets.KEY_PASSWORD != '' }}
     defaults:
       run:
         shell: bash
@@ -63,6 +64,7 @@ jobs:
   build-foss-release:
     name: Build foss release version
     runs-on: ubuntu-latest
+    if: ${{ secrets.BASE_64_SIGNING_KEY != '' && secrets.KEY_STORE_PASSWORD != '' && secrets.ALIAS != '' && secrets.KEY_PASSWORD != '' }}
     defaults:
       run:
         shell: bash
@@ -140,7 +142,16 @@ jobs:
         run: ./gradlew exportLibraryDefinitions
 
       - name: Set up VLC
-        run: ./gradlew vlcSetup
+        run: |
+          for attempt in 1 2 3; do
+            ./gradlew vlcSetup && break
+            if [ "$attempt" -eq 3 ]; then
+              echo "vlcSetup failed after 3 attempts"
+              exit 1
+            fi
+            echo "vlcSetup failed (attempt $attempt), retrying..."
+            sleep 15
+          done
 
       - name: Build desktop AppImage package
         run: ./gradlew composeApp:packageReleaseAppImage
@@ -186,7 +197,16 @@ jobs:
         run: ./gradlew exportLibraryDefinitions
 
       - name: Set up VLC
-        run: ./gradlew vlcSetup
+        run: |
+          for attempt in 1 2 3; do
+            ./gradlew vlcSetup && break
+            if [ "$attempt" -eq 3 ]; then
+              echo "vlcSetup failed after 3 attempts"
+              exit 1
+            fi
+            echo "vlcSetup failed (attempt $attempt), retrying..."
+            sleep 15
+          done
 
       - name: Build desktop DMG package
         run: ./gradlew packageReleaseDmg
@@ -232,7 +252,16 @@ jobs:
         run: ./gradlew exportLibraryDefinitions
 
       - name: Set up VLC
-        run: ./gradlew vlcSetup
+        run: |
+          for attempt in 1 2 3; do
+            ./gradlew vlcSetup && break
+            if [ "$attempt" -eq 3 ]; then
+              echo "vlcSetup failed after 3 attempts"
+              exit 1
+            fi
+            echo "vlcSetup failed (attempt $attempt), retrying..."
+            sleep 15
+          done
 
       - name: Build desktop DMG package
         run: ./gradlew packageReleaseDmg
@@ -278,7 +307,16 @@ jobs:
         run: ./gradlew exportLibraryDefinitions
 
       - name: Set up VLC
-        run: ./gradlew vlcSetup
+        run: |
+          for attempt in 1 2 3; do
+            ./gradlew vlcSetup && break
+            if [ "$attempt" -eq 3 ]; then
+              echo "vlcSetup failed after 3 attempts"
+              exit 1
+            fi
+            echo "vlcSetup failed (attempt $attempt), retrying..."
+            sleep 15
+          done
 
       - name: Build desktop MSI package
         run: ./gradlew packageReleaseMsi
