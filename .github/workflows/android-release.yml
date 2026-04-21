@@ -65,7 +65,7 @@ jobs:
         run: |
           set -euo pipefail
           key_store_path="simpmusic.jks"
-          if ! printf '%s' "$BASE_64_SIGNING_KEY" | base64 --decode > "$key_store_path"; then
+          if ! printf '%s' "$BASE_64_SIGNING_KEY" | base64 -d > "$key_store_path"; then
             echo "Failed to decode BASE_64_SIGNING_KEY into $key_store_path. Ensure the secret is valid base64."
             exit 1
           fi
@@ -164,7 +164,7 @@ jobs:
         run: |
           set -euo pipefail
           key_store_path="simpmusic.jks"
-          if ! printf '%s' "$BASE_64_SIGNING_KEY" | base64 --decode > "$key_store_path"; then
+          if ! printf '%s' "$BASE_64_SIGNING_KEY" | base64 -d > "$key_store_path"; then
             echo "Failed to decode BASE_64_SIGNING_KEY into $key_store_path. Ensure the secret is valid base64."
             exit 1
           fi
