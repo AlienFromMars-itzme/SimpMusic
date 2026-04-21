@@ -35,14 +35,6 @@ jobs:
           distribution: "zulu"
           cache: 'gradle'
 
-      - name: Update Sentry Secrets
-        env:
-          SENTRY_DSN: "https://335ba51a2732a8cd37fff7d0883e9f57@o4511255268818944.ingest.us.sentry.io/4511255277666304"
-          SENTRY_AUTH_TOKEN: "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"
-        run: |
-          echo 'SENTRY_DSN=${{ secrets.SENTRY_DSN }}' > ./local.properties
-          echo "SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }}" >> ./local.properties
-
       - name: Update environment variables
         env:
           BASE_64_SIGNING_KEY: ${{ secrets.BASE_64_SIGNING_KEY }}
@@ -52,7 +44,8 @@ jobs:
       - name: Update build product flavor
         run: |
           echo "" >> ./gradle.properties
-          echo "isFullBuild=true" >> ./gradle.properties
+          # Disable Sentry for GitHub workflow APK full release build.
+          echo "isFullBuild=false" >> ./gradle.properties
 
       - name: Build full release APK
         env:

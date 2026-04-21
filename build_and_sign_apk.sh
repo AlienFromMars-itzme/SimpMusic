@@ -8,9 +8,9 @@ BUILD_TYPE="release"
 BUILD_VARIANT="full"
 KEYSTORE_PATH="./simpmusic.jks"
 # Read passwords from environment variables or use default (for backward compatibility)
-KEYSTORE_PASSWORD=".Vedant@2310"
-KEY_ALIAS=".Vedant@2310"
-KEY_PASSWORD=".Vedant@2310"
+KEYSTORE_PASSWORD="${KEYSTORE_PASSWORD}"
+KEY_ALIAS="${KEY_ALIAS}"
+KEY_PASSWORD="${KEY_PASSWORD}"
 
 # Check if KEY_PASSWORD is set
 if [ -z "$KEY_PASSWORD" ]; then
