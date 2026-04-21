@@ -24,11 +24,28 @@ jobs:
       run:
         shell: bash
     steps:
+      - name: Check signing secrets
+        id: signing_secrets
+        env:
+          BASE_64_SIGNING_KEY: ${{ secrets.BASE_64_SIGNING_KEY }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEY_STORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          if [ -n "$BASE_64_SIGNING_KEY" ] && [ -n "$KEYSTORE_PASSWORD" ] && [ -n "$KEY_ALIAS" ] && [ -n "$KEY_PASSWORD" ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "Signing secrets are missing; skipping full release APK job."
+          fi
+
       - uses: actions/checkout@v6
+        if: steps.signing_secrets.outputs.ready == 'true'
         with:
           submodules: 'recursive'
 
       - name: set up JDK 21
+        if: steps.signing_secrets.outputs.ready == 'true'
         uses: actions/setup-java@v4
         with:
           java-version: 21
@@ -36,18 +53,21 @@ jobs:
           cache: 'gradle'
 
       - name: Update environment variables
+        if: steps.signing_secrets.outputs.ready == 'true'
         env:
           BASE_64_SIGNING_KEY: ${{ secrets.BASE_64_SIGNING_KEY }}
         run:
           echo $BASE_64_SIGNING_KEY | base64 -d > simpmusic.jks
 
       - name: Update build product flavor
+        if: steps.signing_secrets.outputs.ready == 'true'
         run: |
           echo "" >> ./gradle.properties
           # Disable Sentry for GitHub workflow APK full release build.
           echo "isFullBuild=false" >> ./gradle.properties
 
       - name: Build full release APK
+        if: steps.signing_secrets.outputs.ready == 'true'
         env:
           KEYSTORE_PASSWORD: ${{ secrets.KEY_STORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.ALIAS }}
@@ -55,6 +75,7 @@ jobs:
         run: ./build_and_sign_apk.sh --release --full
 
       - name: Upload APK
+        if: steps.signing_secrets.outputs.ready == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: app-full-release
@@ -67,11 +88,28 @@ jobs:
       run:
         shell: bash
     steps:
+      - name: Check signing secrets
+        id: signing_secrets
+        env:
+          BASE_64_SIGNING_KEY: ${{ secrets.BASE_64_SIGNING_KEY }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEY_STORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          if [ -n "$BASE_64_SIGNING_KEY" ] && [ -n "$KEYSTORE_PASSWORD" ] && [ -n "$KEY_ALIAS" ] && [ -n "$KEY_PASSWORD" ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "Signing secrets are missing; skipping foss release APK job."
+          fi
+
       - uses: actions/checkout@v6
+        if: steps.signing_secrets.outputs.ready == 'true'
         with:
           submodules: 'recursive'
 
       - name: set up JDK 21
+        if: steps.signing_secrets.outputs.ready == 'true'
         uses: actions/setup-java@v4
         with:
           java-version: 21
@@ -79,17 +117,20 @@ jobs:
           cache: 'gradle'
 
       - name: Update environment variables
+        if: steps.signing_secrets.outputs.ready == 'true'
         env:
           BASE_64_SIGNING_KEY: ${{ secrets.BASE_64_SIGNING_KEY }}
         run:
           echo $BASE_64_SIGNING_KEY | base64 -d > simpmusic.jks
 
       - name: Update build product flavor
+        if: steps.signing_secrets.outputs.ready == 'true'
         run: |
           echo "" >> ./gradle.properties
           echo "isFullBuild=false" >> ./gradle.properties
 
       - name: Build foss release APK
+        if: steps.signing_secrets.outputs.ready == 'true'
         env:
           KEYSTORE_PASSWORD: ${{ secrets.KEY_STORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.ALIAS }}
@@ -97,6 +138,7 @@ jobs:
         run: ./build_and_sign_apk.sh --release --foss
 
       - name: Upload APK
+        if: steps.signing_secrets.outputs.ready == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: app-foss-release
@@ -140,7 +182,16 @@ jobs:
         run: ./gradlew exportLibraryDefinitions
 
       - name: Set up VLC
-        run: ./gradlew vlcSetup
+        run: |
+          for attempt in 1 2 3; do
+            ./gradlew vlcSetup && break
+            if [ "$attempt" -eq 3 ]; then
+              echo "vlcSetup failed after 3 attempts"
+              exit 1
+            fi
+            echo "vlcSetup failed (attempt $attempt), retrying..."
+            sleep 15
+          done
 
       - name: Build desktop AppImage package
         run: ./gradlew composeApp:packageReleaseAppImage
@@ -186,7 +237,16 @@ jobs:
         run: ./gradlew exportLibraryDefinitions
 
       - name: Set up VLC
-        run: ./gradlew vlcSetup
+        run: |
+          for attempt in 1 2 3; do
+            ./gradlew vlcSetup && break
+            if [ "$attempt" -eq 3 ]; then
+              echo "vlcSetup failed after 3 attempts"
+              exit 1
+            fi
+            echo "vlcSetup failed (attempt $attempt), retrying..."
+            sleep 15
+          done
 
       - name: Build desktop DMG package
         run: ./gradlew packageReleaseDmg
@@ -232,7 +292,16 @@ jobs:
         run: ./gradlew exportLibraryDefinitions
 
       - name: Set up VLC
-        run: ./gradlew vlcSetup
+        run: |
+          for attempt in 1 2 3; do
+            ./gradlew vlcSetup && break
+            if [ "$attempt" -eq 3 ]; then
+              echo "vlcSetup failed after 3 attempts"
+              exit 1
+            fi
+            echo "vlcSetup failed (attempt $attempt), retrying..."
+            sleep 15
+          done
 
       - name: Build desktop DMG package
         run: ./gradlew packageReleaseDmg
@@ -278,7 +347,16 @@ jobs:
         run: ./gradlew exportLibraryDefinitions
 
       - name: Set up VLC
-        run: ./gradlew vlcSetup
+        run: |
+          for attempt in 1 2 3; do
+            ./gradlew vlcSetup && break
+            if [ "$attempt" -eq 3 ]; then
+              echo "vlcSetup failed after 3 attempts"
+              exit 1
+            fi
+            echo "vlcSetup failed (attempt $attempt), retrying..."
+            sleep 15
+          done
 
       - name: Build desktop MSI package
         run: ./gradlew packageReleaseMsi
