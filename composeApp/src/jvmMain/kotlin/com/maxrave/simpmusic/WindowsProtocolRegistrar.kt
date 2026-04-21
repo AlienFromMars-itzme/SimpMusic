@@ -9,7 +9,7 @@ import com.maxrave.logger.Logger
  * Registry structure:
  * ```
  * HKCU\Software\Classes\simpmusic
- *     (Default) = "URL:SimpMusic Protocol"
+ *     (Default) = "URL:Sonara Protocol"
  *     URL Protocol = ""
  *     \DefaultIcon
  *         (Default) = "\"<exe_path>\",0"
@@ -39,7 +39,7 @@ object WindowsProtocolRegistrar {
             Logger.d(TAG, "Registering simpmusic:// protocol handler -> $exePath")
 
             // Main key with protocol description
-            regAdd(REG_KEY, null, "URL:SimpMusic Protocol")
+            regAdd(REG_KEY, null, "URL:Sonara Protocol")
             regAdd(REG_KEY, "URL Protocol", "")
 
             // DefaultIcon
@@ -57,7 +57,7 @@ object WindowsProtocolRegistrar {
     private fun isAlreadyRegistered(currentExePath: String): Boolean {
         return try {
             val result = regQuery("$REG_KEY\\shell\\open\\command", null)
-            // Registry stores path with quotes: "C:\path\to\SimpMusic.exe" "%1"
+            // Registry stores path with quotes: "C:\path\to\Sonara.exe" "%1"
             // Normalize both for comparison
             val normalizedExe = currentExePath.replace("\\", "/").lowercase()
             result?.replace("\\", "/")?.lowercase()?.contains(normalizedExe) == true
@@ -69,8 +69,8 @@ object WindowsProtocolRegistrar {
     private fun resolveExePath(): String? {
         // JPackage directory structure:
         //   <app>/runtime/...  (java.home points here)
-        //   <app>/SimpMusic.exe
-        // So we go: java.home → parent (runtime) → parent (app) → SimpMusic.exe
+        //   <app>/Sonara.exe
+        // So we go: java.home → parent (runtime) → parent (app) → Sonara.exe
         val javaHome = System.getProperty("java.home") ?: return null
         val javaHomeDir = java.io.File(javaHome)
 
@@ -85,7 +85,7 @@ object WindowsProtocolRegistrar {
         }
 
         if (appDir != null) {
-            val exeFile = java.io.File(appDir, "SimpMusic.exe")
+            val exeFile = java.io.File(appDir, "Sonara.exe")
             if (exeFile.exists()) {
                 return exeFile.absolutePath
             }
